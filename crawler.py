@@ -10,21 +10,38 @@ soup = BeautifulSoup(main_page.content, 'lxml')
 hrefList = soup.find('ul', {'class': 'ogn-childpages'})
 
 
+def parse_monster_name(monster_name):
+    stopWords = ["(3pp)", "(3pp)", "(3PP)", "[3pp]", "; 3pp", "3pp;", ", 3pp", "-3PP", "(3PP-FGG)", "(3pp:TOHC)", "(CR+2)"]
+    if "Page Not Found" in monster_name:
+        return []
+    for word in stopWords:
+        monster_name = monster_name.replace(word, "")
+    monster_name = monster_name.replace('\u2019', "'")
+    return monster_name.strip(" ")
+
+def parse_monster_spell(monster_spell):
+    return monster_spell.replace('\u2019', "'")
+
+
 def find_spells(link):
     page = requests.get(link)
     soup = BeautifulSoup(page.content, 'lxml')
 
-    monster_name = soup.find('h1').get_text()
-    print(monster_name)
-
+    monster_name = parse_monster_name(soup.find('h1').get_text())
+    if monster_name:
+        print('--------------------------------')
+        print(monster_name)
+        print('--------------------------------')
     spells = soup.find_all('a', {'class': 'spell'})
     monster_spells = []
 
     for spell in spells:
-        print(spell.get_text())
-        monster_spells.append(spell.get_text())
+        if monster_name:
+            print(parse_monster_spell(spell.get_text()))
+        monster_spells.append(parse_monster_spell(spell.get_text()))
 
-    monsters.append({"name": monster_name, "spells": monster_spells})
+    if monster_name:
+        monsters.append({"name": monster_name, "spells": monster_spells})
 
 
 def find_monsters_and_spells(link):
@@ -42,5 +59,5 @@ def find_monsters_and_spells(link):
 for link in hrefList.find_all('a'):
     find_monsters_and_spells(link)
 
-with open('./results/result.json', 'w') as json_file:
-    json.dump(monsters, json_file)
+with open('./results/result.json', 'w') as fout:
+    fout.write('[' + ',\n'.join(json.dumps(monster) for monster in monsters) + ']\n')
