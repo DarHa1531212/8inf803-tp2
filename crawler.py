@@ -17,6 +17,8 @@ def parse_monster_name(monster_name):
     for word in stopWords:
         monster_name = monster_name.replace(word, "")
     monster_name = monster_name.replace('\u2019', "'")
+    if ',' in monster_name:
+        monster_name = monster_name.split(',')[1]
     return monster_name.strip(" ")
 
 def parse_monster_spell(monster_spell):
