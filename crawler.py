@@ -43,4 +43,4 @@ for link in hrefList.find_all('a'):
     find_monsters_and_spells(link)
 
 with open('./results/result.json', 'w') as json_file:
-    json.dumps(monsters, json_file)
+    json.dump(monsters, json_file)
