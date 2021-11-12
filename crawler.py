@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+import re
 
 monsters = []
 
@@ -17,12 +18,16 @@ def parse_monster_name(monster_name):
     for word in stopWords:
         monster_name = monster_name.replace(word, "")
     monster_name = monster_name.replace('\u2019', "'")
-    if ',' in monster_name:
+    if ',' in monster_name and (monster_name.find('(') > monster_name.find(',') or monster_name.find('(') == -1):
         monster_name = monster_name.split(',')[1]
     return monster_name.strip(" ")
 
 def parse_monster_spell(monster_spell):
-    return monster_spell.replace('\u2019', "'")
+    monster_spell = monster_spell.replace('\u2019', "'").replace('\/', ' ').strip(' ')
+    if monster_spell:
+        return monster_spell[0].lower() + monster_spell[1:]
+    else:
+        return monster_spell
 
 
 def find_spells(link):

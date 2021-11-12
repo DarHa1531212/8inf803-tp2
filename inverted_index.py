@@ -20,10 +20,11 @@ df.show(20)
 """
 
 # --- Inversion ---
-result = rdd.flatMap(lambda row: [(spell, row['name']) for spell in row["spells"]])\
+result = rdd.flatMap(lambda row: [(spell, [row['name']]) for spell in row["spells"]])\
             .reduceByKey(lambda a,b: a+b)\
+            .sortByKey()\
             .collect()
-df2 = sc.parallelize(result).toDF(("spell", "names"))
+df2 = sc.parallelize(result).toDF(("spell", "creatures"))
 
 #--- sauvegarde au format .json ---
 df2.toPandas().to_json('results/inverted_result.json', orient='records', force_ascii=False, lines=True)
